@@ -83,10 +83,10 @@ function update() {
     arcPosX += arcMoveDirX * arcMoveSpeed;
     arcPosY += arcMoveDirY * arcMoveSpeed;
 
-    ball.left = arcPosX - (arcRadius / 2);
-    ball.right = arcPosX + (arcRadius / 2);
-    ball.top = arcPosX - (arcRadius / 2);
-    ball.bottom = arcPosX + (arcRadius / 2);
+    ball.left = arcPosX - arcRadius;
+    ball.right = arcPosX + arcRadius;
+    ball.top = arcPosX - arcRadius;
+    ball.bottom = arcPosX + arcRadius;
 
     // 공 + bar 충돌 확인
     if (isCollisionRectToRect(ball, paddle)) {

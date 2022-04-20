@@ -24,6 +24,7 @@ let arcMoveDirX = -1;
 let arcMoveDirY = -1;
 let arcMoveSpeed = 2;
 let isContinue = true;
+let isStart = false;
 
 let ball = {
     left:0, right:0, top:0, bottom:0
@@ -61,6 +62,10 @@ document.addEventListener('keyup', keyUpEventHandler);
 
 /* Function 구현 */
 function keyDownEventHandler(e) {
+    if (e.key == " ") {
+        isStart = true;
+    }
+
     if (e.key == "ArrowRight") {
         if (barPosX + barWidth < canvas.width) {
             barPosX += barMoveSpeed;
@@ -89,7 +94,8 @@ function keyUpEventHandler() {
  * 조건: if 조건에 맞춰 방향 변수에 + or - 를 결정하고 최종 return에 +=로 증감 표시
  */
 function update() {
-    if ()
+    if (isStart) {
+        console.log(isStart);
     if (arcPosX - arcRadius < 0) {
         arcMoveDirX = 1;
     }
@@ -138,6 +144,7 @@ function update() {
     // if (!isContinue) {
     //     alert("Game Over");
     // }
+}
 }
 
 function isCollisionRectToRect(rectA, rectB) {

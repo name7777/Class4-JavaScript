@@ -4,27 +4,35 @@
  * 3) context
  */
 
+/* 220420 목표
+ * 배열
+ */
+
 
 // 캔버스 설정
 const canvas = document.getElementById("myCanvas");
 const context = canvas.getContext("2d");
 
+// // document.forms[0].elements[0]; => 나중에 input 받아오는 부분
+// console.log(document.forms[0].elements[0]);
 
-// rect, arc 설정
+// arc(공) 설정
 const arcRadius = 20;
-let arcPosX = canvas.width / 2 + 100;
-let arcPosY = canvas.height / 2;
+let arcPosX = canvas.width / 2;
+let arcPosY = canvas.height - arcRadius - 10;
 let arcMoveDirX = -1;
 let arcMoveDirY = -1;
 let arcMoveSpeed = 2;
+let isContinue = true;
 
 let ball = {
     left:0, right:0, top:0, bottom:0
 };
 
+// bar 설정
 const barWidth = 100;
 const barHeight = 20;
-let barPosX = canvas.width / 2 - barHeight / 2
+let barPosX = canvas.width / 2 - barWidth / 2
 let barPosY = canvas.height - barHeight;
 let barMoveSpeed = 15;
 
@@ -32,6 +40,21 @@ let paddle = {
     left:0, right:0, top:0, bottom:0
 };
 
+// bricks 설정
+let brick = {
+    left:0, right:0, top:0, bottom:0,
+    row:0, col:0, isAlive:true
+}
+
+const brickWidth = 50; // 간격 10
+const brickHeight = 25; // 간격 5
+const brickRow = 4;
+const brickCol = 5;
+const brickSum = brickRow * brickCol;
+let bricks = [];
+let disapperedCount = 0;
+
+// 키처리 함수 추가
 document.addEventListener('keydown', keyDownEventHandler);
 document.addEventListener('keyup', keyUpEventHandler);
 
@@ -66,18 +89,19 @@ function keyUpEventHandler() {
  * 조건: if 조건에 맞춰 방향 변수에 + or - 를 결정하고 최종 return에 +=로 증감 표시
  */
 function update() {
-    if (arcPosX - 50 < 0) {
+    if ()
+    if (arcPosX - arcRadius < 0) {
         arcMoveDirX = 1;
     }
-    else if (arcPosX + 50 > canvas.width) {
+    else if (arcPosX + arcRadius > canvas.width) {
         arcMoveDirX = -1;
     }
 
-    if (arcPosY - 50 < 0) {
+    if (arcPosY - arcRadius < 0) {
         arcMoveDirY = 1;
     }
-    else if (arcPosY + 50 > canvas.width) {
-        arcMoveDirY = -1;
+    else if (arcPosY - (arcRadius * 2) > canvas.width) {
+        isContinue = false;
     }
 
     arcPosX += arcMoveDirX * arcMoveSpeed;
@@ -85,14 +109,35 @@ function update() {
 
     ball.left = arcPosX - arcRadius;
     ball.right = arcPosX + arcRadius;
-    ball.top = arcPosX - arcRadius;
-    ball.bottom = arcPosX + arcRadius;
+    ball.top = arcPosY - arcRadius;
+    ball.bottom = arcPosY + arcRadius;
 
     // 공 + bar 충돌 확인
     if (isCollisionRectToRect(ball, paddle)) {
         arcMoveDirY = -1;
         arcPosY = paddle.top - arcRadius;
     }
+
+    // 공 + bricks 충돌 확인
+    for(let i = 0; i < brickRow; i++) {
+        for(let j = 0; j < brickCol; j++) {
+            if (bricks[i][j].isAlive && isCollisionRectToRect(ball, bricks[i][j])) {
+                bricks[i][j].isAlive = false; // 살아있는 bricks(true)를 false로 바꿈
+                
+                disapperedCount += 1;
+                console.log(brickSum);
+                if (disapperedCount == brickSum) console.log("clear")
+                arcMoveDirY = -arcMoveDirY;
+                
+                break;
+            }
+        }
+    }
+
+    // Game Over
+    // if (!isContinue) {
+    //     alert("Game Over");
+    // }
 }
 
 function isCollisionRectToRect(rectA, rectB) {
@@ -112,26 +157,27 @@ function isCollisionRectToRect(rectA, rectB) {
     return true;
 }
 
-// 2. draw : 화면 클리어 및 다른 도형 그리기
+// draw : 화면 클리어 및 여러 가지 도형 그리는 함수
 function draw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     drawRect();
     drawArc()
+    drawBricks();
 }
 
-// 3. 모양: rectangle
+// 1) rectangle
 function drawRect() {
     context.beginPath();
 
-    context.rect(barPosX, canvas.height - 20, 100, 20);
+    context.rect(barPosX, canvas.height - 20, barWidth, barHeight);
     context.fillStyle = 'red';
     context.fill();
 
     context.closePath();
 }
 
-// 3-2. 모양: circle
+// 2) circle
 function drawArc() {
     context.beginPath();
 
@@ -142,5 +188,37 @@ function drawArc() {
     context.closePath();
 }
 
+// 3) bricks
+function setBricks() {
+    for (let i = 0; i < brickRow; i++) {
+        bricks[i] = [];
+        for (let j = 0; j < brickCol; j++) {
+            bricks[i][j] = {
+                left: 55 + j * (brickWidth + 10),
+                right: 55 + j * (brickWidth + 10) + 50,
+                top: 30 + i * (brickHeight + 5),
+                bottom: 30 + i * (brickHeight + 5) + 25,
+                row:i, col:j,
+                isAlive: true
+            };
+        }
+    }
+}
+
+function drawBricks() {
+    context.beginPath();
+    for (let i = 0; i < brickRow; i++) {
+        for (let j = 0; j < brickCol; j++) {
+            if (bricks[i][j].isAlive) {
+                context.rect(bricks[i][j].left, bricks[i][j].top, brickWidth, brickHeight);
+                context.fillStyle = 'green';
+                context.fill();
+            }
+        }
+    }
+    context.closePath();
+}
+
+setBricks();
 setInterval(update, 10);
 setInterval(draw, 10);

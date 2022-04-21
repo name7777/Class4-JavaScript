@@ -13,8 +13,7 @@
 const canvas = document.getElementById("myCanvas");
 const context = canvas.getContext("2d");
 
-// // document.forms[0].elements[0]; => 나중에 input 받아오는 부분
-// console.log(document.forms[0].elements[0]);
+console.log("이건가?", document.setGame.row.value);
 
 // arc(공) 설정
 const arcRadius = 20;
@@ -27,7 +26,7 @@ let isContinue = true;
 let isStart = false;
 
 let ball = {
-    left:0, right:0, top:0, bottom:0
+    left: 0, right: 0, top: 0, bottom: 0
 };
 
 // bar 설정
@@ -38,13 +37,13 @@ let barPosY = canvas.height - barHeight;
 let barMoveSpeed = 15;
 
 let paddle = {
-    left:0, right:0, top:0, bottom:0
+    left: 0, right: 0, top: 0, bottom: 0
 };
 
 // bricks 설정
 let brick = {
-    left:0, right:0, top:0, bottom:0,
-    row:0, col:0, isAlive:true
+    left: 0, right: 0, top: 0, bottom: 0,
+    row: 0, col: 0, isAlive: true
 }
 
 const brickWidth = 50; // 간격 10
@@ -73,7 +72,7 @@ function keyDownEventHandler(e) {
     }
     else if (e.key == "ArrowLeft") {
         if (barPosX > 0) {
-           barPosX -= barMoveSpeed;
+            barPosX -= barMoveSpeed;
         }
     }
 
@@ -96,55 +95,58 @@ function keyUpEventHandler() {
 function update() {
     if (isStart) {
         console.log(isStart);
-    if (arcPosX - arcRadius < 0) {
-        arcMoveDirX = 1;
-    }
-    else if (arcPosX + arcRadius > canvas.width) {
-        arcMoveDirX = -1;
-    }
+        if (arcPosX - arcRadius < 0) {
+            arcMoveDirX = 1;
+        }
+        else if (arcPosX + arcRadius > canvas.width) {
+            arcMoveDirX = -1;
+        }
 
-    if (arcPosY - arcRadius < 0) {
-        arcMoveDirY = 1;
-    }
-    else if (arcPosY - (arcRadius * 2) > canvas.width) {
-        isContinue = false;
-    }
+        if (arcPosY - arcRadius < 0) {
+            arcMoveDirY = 1;
+        }
+        else if (arcPosY - (arcRadius * 2) > canvas.width) {
+            isContinue = false;
+        }
 
-    arcPosX += arcMoveDirX * arcMoveSpeed;
-    arcPosY += arcMoveDirY * arcMoveSpeed;
+        arcPosX += arcMoveDirX * arcMoveSpeed;
+        arcPosY += arcMoveDirY * arcMoveSpeed;
 
-    ball.left = arcPosX - arcRadius;
-    ball.right = arcPosX + arcRadius;
-    ball.top = arcPosY - arcRadius;
-    ball.bottom = arcPosY + arcRadius;
+        ball.left = arcPosX - arcRadius;
+        ball.right = arcPosX + arcRadius;
+        ball.top = arcPosY - arcRadius;
+        ball.bottom = arcPosY + arcRadius;
 
-    // 공 + bar 충돌 확인
-    if (isCollisionRectToRect(ball, paddle)) {
-        arcMoveDirY = -1;
-        arcPosY = paddle.top - arcRadius;
-    }
+        // 공 + bar 충돌 확인
+        if (isCollisionRectToRect(ball, paddle)) {
+            arcMoveDirY = -1;
+            arcPosY = paddle.top - arcRadius;
+        }
 
-    // 공 + bricks 충돌 확인
-    for(let i = 0; i < brickRow; i++) {
-        for(let j = 0; j < brickCol; j++) {
-            if (bricks[i][j].isAlive && isCollisionRectToRect(ball, bricks[i][j])) {
-                bricks[i][j].isAlive = false; // 살아있는 bricks(true)를 false로 바꿈
-                
-                disapperedCount += 1;
-                console.log(brickSum);
-                if (disapperedCount == brickSum) console.log("clear")
-                arcMoveDirY = -arcMoveDirY;
-                
-                break;
+        // 공 + bricks 충돌 확인
+        for (let i = 0; i < brickRow; i++) {
+            for (let j = 0; j < brickCol; j++) {
+                if (bricks[i][j].isAlive && isCollisionRectToRect(ball, bricks[i][j])) {
+                    bricks[i][j].isAlive = false; // 살아있는 bricks(true)를 false로 바꿈
+
+                    disapperedCount += 1;
+                    if (disapperedCount == brickSum) {
+                        location.reload();
+                        alert("Clear");
+                    }
+                    arcMoveDirY = -arcMoveDirY;
+
+                    break;
+                }
             }
         }
-    }
 
-    // Game Over
-    // if (!isContinue) {
-    //     alert("Game Over");
-    // }
-}
+        // Game Over
+        if (!isContinue) {
+            location.reload();
+            alert('Game Over');
+        }
+    }
 }
 
 function isCollisionRectToRect(rectA, rectB) {
@@ -158,11 +160,15 @@ function isCollisionRectToRect(rectA, rectB) {
         rectA.right < rectB.left ||
         rectA.top > rectB.bottom ||
         rectA.bottom < rectB.top) {
-            return false;
-        }
+        return false;
+    }
 
     return true;
 }
+
+// function isCollisionBarTop(ball, bar) {
+//     if (ball.bottomd < bar.barPosX + barWidth / 2) 
+// }
 
 // draw : 화면 클리어 및 여러 가지 도형 그리는 함수
 function draw() {
@@ -177,7 +183,7 @@ function draw() {
 function drawRect() {
     context.beginPath();
 
-    context.rect(barPosX, canvas.height - 20, barWidth, barHeight);
+    context.rect(barPosX, canvas.height - barHeight, barWidth, barHeight);
     context.fillStyle = 'red';
     context.fill();
 
@@ -205,7 +211,7 @@ function setBricks() {
                 right: 55 + j * (brickWidth + 10) + 50,
                 top: 30 + i * (brickHeight + 5),
                 bottom: 30 + i * (brickHeight + 5) + 25,
-                row:i, col:j,
+                row: i, col: j,
                 isAlive: true
             };
         }

@@ -41,11 +41,6 @@ let paddle = {
 };
 
 // bricks 설정
-let brick = {
-    left: 0, right: 0, top: 0, bottom: 0,
-    row: 0, col: 0, isAlive: true
-}
-
 const brickWidth = 50; // 간격 10
 const brickHeight = 25; // 간격 5
 const brickRow = 4;
@@ -53,6 +48,13 @@ const brickCol = 5;
 const brickSum = brickRow * brickCol;
 let bricks;
 let disapperedCount = 0;
+
+// block 설정
+let block;
+let blockPosX = canvas.width / 2 - brickWidth / 2;
+let blockPosY = canvas.height / 2;
+let blockMoveDirX = -1;
+let blockMoveSpeed = 3;
 
 
 // 클래스로 객체의 설계도를 만든다
@@ -131,8 +133,16 @@ function update() {
             isContinue = false;
         }
 
+        if (block.left < 0) {
+            blockMoveDirX = 1;
+        }
+        else if (block.left > canvas.width - brickWidth) {
+            blockMoveDirX = -1;
+        }
+
         arcPosX += arcMoveDirX * arcMoveSpeed;
         arcPosY += arcMoveDirY * arcMoveSpeed;
+        block.left += blockMoveDirX * blockMoveSpeed;
 
         ball.left = arcPosX - arcRadius;
         ball.right = arcPosX + arcRadius;
@@ -153,8 +163,7 @@ function update() {
 
                     disapperedCount += 1;
                     if (disapperedCount == brickSum) {
-                        location.reload();
-                        alert("Clear");
+                        setTimeout(gameOver, 0)
                     }
                     arcMoveDirY = -arcMoveDirY;
 
@@ -163,12 +172,40 @@ function update() {
             }
         }
 
+        // 공 + block 충돌 확인
+        // if (isCollisionRectToRect(ball, block)) {
+        //     if (ball.top >= block.bottom && ball.right >= block.left) {
+        //         arcMoveDirY = 1;
+        //     }
+        //     else if (ball.bottom >= block.top && ball.right >= block.left) {
+        //         arcMoveDirX = -1;
+        //     }
+        //     else if (ball.)
+        // }
+
         // Game Over
-        if (!isContinue) {
-            location.reload();
-            alert('Game Over');
-        }
+        (async () => {
+            await isGameAlive(isContinue, gameOver);
+        })();
     }
+}
+
+function isGameAlive(checkAlive, callback) {
+    return new Promise((resolve, reject) => {
+        if (!checkAlive) {
+            resolve(callback());
+        }
+    })
+}
+
+function gameOver() {
+    location.reload();
+    alert('Game Over');
+}
+
+function gameClear() {
+    location.reload();
+    alert("Clear");
 }
 
 function isCollisionRectToRect(rectA, rectB) {
@@ -199,6 +236,7 @@ function draw() {
     drawRect();
     drawArc()
     drawBricks();
+    drawBlock();
 }
 
 // 1) rectangle
@@ -226,7 +264,6 @@ function drawArc() {
 // 3) bricks
 function setBricks() {
     bricks = [];
-
     for (let i = 0; i < brickRow; i++) {
         bricks[i] = [];
         for (let j = 0; j < brickCol; j++) {
@@ -239,6 +276,14 @@ function setBricks() {
             )
         }
     }
+
+    block = new Brick(
+        blockPosX,
+        blockPosY,
+        blockPosX + brickWidth,
+        blockPosY + brickHeight,
+        "black"
+    )
 }
 
 function drawBricks() {
@@ -248,6 +293,12 @@ function drawBricks() {
             bricks[i][j].draw();
         }
     }
+    context.closePath();
+}
+
+function drawBlock() {
+    context.beginPath();
+    block.draw();
     context.closePath();
 }
 

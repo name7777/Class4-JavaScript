@@ -83,7 +83,7 @@ document.addEventListener('keydown', keyDownEventHandler);
 document.addEventListener('keyup', keyUpEventHandler);
 
 
-/* Function 구현 */
+// Function
 function keyDownEventHandler(e) {
     if (e.key == " ") {
         isStart = true;
@@ -118,7 +118,6 @@ function keyUpEventHandler() {
  */
 function update() {
     if (isStart) {
-        console.log(isStart);
         if (arcPosX - arcRadius < 0) {
             arcMoveDirX = 1;
         }
@@ -163,8 +162,7 @@ function update() {
 
                     disapperedCount += 1;
                     if (disapperedCount == brickSum) {
-                        location.reload();
-                        alert("Clear");
+                        setTimeout(gameOver, 0)
                     }
                     arcMoveDirY = -arcMoveDirY;
 
@@ -174,22 +172,44 @@ function update() {
         }
 
         // 공 + block 충돌 확인
-        // if (isCollisionRectToRect(ball, block)) {
-        //     if (ball.top >= block.bottom && ball.right >= block.left) {
-        //         arcMoveDirY = 1;
-        //     }
-        //     else if (ball.bottom >= block.top && ball.right >= block.left) {
-        //         arcMoveDirX = -1;
-        //     }
-        //     else if (ball.)
-        // }
+        if (isCollisionRectToRect(ball, block)) {
+            if (ball.top <= block.bottom && ball.right >= block.left && ball.left <= block.right) { // 블록 아랫면
+                arcMoveDirY = 1;
+            }
+            else if (ball.bottom >= block.top && ball.right >= block.left && ball.left <= block.right) { // 블록 윗면
+                arcMoveDirY = -1;
+            }
+            else if (ball.right >= block.left && ball.bottom >= block.top && ball.top <= block.bottom) { // 블록 왼쪽
+                arcMoveDirX = -1;
+            }
+            else if (ball.left <= block.right && ball.bottom >= block.top && ball.top <= block.bottom) { // 블록 오른쪽
+                arcMoveDirX = 1;
+            }
+        }
 
         // Game Over
-        if (!isContinue) {
-            location.reload();
-            alert('Game Over');
-        }
+        (async () => {
+            await isGameAlive(isContinue, gameOver);
+        })();
     }
+}
+
+function isGameAlive(checkAlive, callback) {
+    return new Promise((resolve, reject) => {
+        if (!checkAlive) {
+            resolve(callback());
+        }
+    })
+}
+
+function gameOver() {
+    location.reload();
+    alert('Game Over');
+}
+
+function gameClear() {
+    location.reload();
+    alert("Clear");
 }
 
 function isCollisionRectToRect(rectA, rectB) {

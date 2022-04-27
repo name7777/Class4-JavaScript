@@ -23,12 +23,12 @@ class CMap {
         this.isCheck = isCheck;
     }
     draw() {
-        if(this.isCheck == true) {
+        if (this.isCheck) {
             context.rect(this.left, this.top, commonWidth, commonHeight);
             context.fillStyle = this.color;
             context.fill();
         }
-        else if (this.isCheck == false) {
+        else {
             context.rect(this.left, this.top, commonWidth, commonHeight);
             context.fillStyle = "black";
             context.fill();
@@ -106,7 +106,6 @@ function keyDownEventHandler(e) {
         for (let j = 0; j < mapCol; j++) {
             if (playerPosX == map[i][j].left && playerPosY == map[i][j].bottom) {
                 map[i][j].isCheck = true;
-                map[i][j].draw(map[i][j].isCheck);
             }
         }
     }
@@ -239,7 +238,7 @@ function setMap() {
                 j * (commonWidth + 5),
                 i * (commonHeight + 5),
                 color,
-                false,
+                false
             )
         }
     }
